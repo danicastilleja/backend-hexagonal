@@ -1,16 +1,15 @@
 package com.icodeapp.proyectospring.api.autor;
 
+import com.icodeapp.proyectospring.api.autor.dto.AutorCreateDTO;
+import com.icodeapp.proyectospring.api.autor.dto.AutorDTO;
 import com.icodeapp.proyectospring.application.autor.usecase.*;
 import com.icodeapp.proyectospring.domain.autor.model.Autor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/autores")
@@ -33,31 +32,75 @@ public class AutorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Autor>>  getAutores(){
-        return ResponseEntity.ok(this.getAutoresUseCase.getAutores()) ;
+    public ResponseEntity<List<AutorDTO>>  getAutores(){
+
+        List<AutorDTO> autoresDTO = this.getAutoresUseCase.getAutores().stream().map(autor -> {
+            AutorDTO autorDTO = new AutorDTO();
+            autorDTO.setId(autor.getId());
+            autorDTO.setNombre(autor.getNombre());
+            autorDTO.setApellido(autor.getApellido());
+            autorDTO.setTelefono(autor.getTelefono());
+            return autorDTO;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(autoresDTO) ;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Autor> getAutor(@PathVariable Long id){
-        return ResponseEntity.ok(this.getAutorUseCase.getAutor(id));
+    public ResponseEntity<AutorDTO> getAutor(@PathVariable Long id){
+        Autor autor = this.getAutorUseCase.getAutor(id);
+        AutorDTO autorDTO = new AutorDTO();
+        autorDTO.setId(autor.getId());
+        autorDTO.setNombre(autor.getNombre());
+        autorDTO.setApellido(autor.getApellido());
+        autorDTO.setTelefono(autor.getTelefono());
+        return ResponseEntity.ok(autorDTO);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Autor> searchAutor(@RequestParam String nombre, @RequestParam String apellido){
+    public ResponseEntity<AutorDTO> searchAutor(@RequestParam String nombre, @RequestParam String apellido){
         Autor autor = searchAutorUseCase.searchByNameAndSurname(nombre, apellido);
-        return ResponseEntity.ok(autor);
+        AutorDTO autorDTO = new AutorDTO();
+        autorDTO.setId(autor.getId());
+        autorDTO.setNombre(autor.getNombre());
+        autorDTO.setApellido(autor.getApellido());
+        autorDTO.setTelefono(autor.getTelefono());
+        return ResponseEntity.ok(autorDTO);
     }
 
     @PostMapping
-    public ResponseEntity<Autor> createAutor(@RequestBody Autor autor){
-        Autor autorResponse = createAutorUseCase.createAutor(autor);
-        return new ResponseEntity<>(autorResponse, HttpStatus.CREATED);
+    public ResponseEntity<AutorDTO> createAutor(@RequestBody AutorCreateDTO autorCreateDTO){
+        Autor autorNew = new Autor();
+        autorNew.setNombre(autorCreateDTO.getNombre());
+        autorNew.setApellido(autorCreateDTO.getApellido());
+        autorNew.setTelefono(autorCreateDTO.getTelefono());
+
+        Autor autorCreated = createAutorUseCase.createAutor(autorNew);
+
+        AutorDTO autorResponseDTO = new AutorDTO();
+        autorResponseDTO.setId(autorCreated.getId());
+        autorResponseDTO.setNombre(autorCreated.getNombre());
+        autorResponseDTO.setApellido(autorCreated.getApellido());
+        autorResponseDTO.setTelefono(autorCreated.getTelefono());
+
+        return new ResponseEntity<>(autorResponseDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Autor> updateAutor(@PathVariable Long id, @RequestBody Autor autor){
+    public ResponseEntity<AutorDTO> updateAutor(@PathVariable Long id, @RequestBody AutorDTO autorUpdatedDTO){
+        Autor autor = new Autor();
         autor.setId(id);
-        return ResponseEntity.ok(this.updateAutorUseCase.updateAutor(autor));
+        autor.setNombre(autorUpdatedDTO.getNombre());
+        autor.setApellido(autorUpdatedDTO.getApellido());
+        autor.setTelefono(autorUpdatedDTO.getTelefono());
+
+        Autor autorSaved = this.updateAutorUseCase.updateAutor(autor);
+        AutorDTO autorSavedDTO = new AutorDTO();
+        autorSavedDTO.setId(autorSaved.getId());
+        autorSavedDTO.setNombre(autorSaved.getNombre());
+        autorSavedDTO.setApellido(autorSaved.getApellido());
+        autorSavedDTO.setTelefono(autorSaved.getTelefono());
+        return ResponseEntity.ok(autorSavedDTO);
     }
 
     @DeleteMapping("/{id}")
