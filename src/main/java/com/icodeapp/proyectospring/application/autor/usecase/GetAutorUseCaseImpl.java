@@ -1,5 +1,6 @@
 package com.icodeapp.proyectospring.application.autor.usecase;
 
+import com.icodeapp.proyectospring.domain.exception.model.ResourceNotFoundException;
 import com.icodeapp.proyectospring.domain.autor.model.Autor;
 import com.icodeapp.proyectospring.domain.autor.port.AutorRepositoryPort;
 import org.springframework.stereotype.Component;
@@ -19,8 +20,7 @@ public class GetAutorUseCaseImpl implements GetAutorUseCase{
     public Autor getAutor(Long id) {
         Optional<Autor> autorOptional= autorRepositoryPort.getAutor(id);
         if(autorOptional.isEmpty()){
-            throw new RuntimeException("Autor no encontrado");
+            throw new ResourceNotFoundException("Recurso con id: " + id + " no encontrado.");
         }
         return autorOptional.get();
-    }
-}
+    }}

@@ -1,6 +1,7 @@
 package com.icodeapp.proyectospring.application.autor.usecase;
 
 import com.icodeapp.proyectospring.domain.autor.port.AutorRepositoryPort;
+import com.icodeapp.proyectospring.domain.exception.model.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +18,7 @@ public class DeleteAutorUseCaseImpl implements DeleteAutorUseCase{
         if(autorRepositoryPort.existsById(id)){
             autorRepositoryPort.deleteAutor(id);
         }else{
-            throw new RuntimeException("El autor no existe");
+            throw new ResourceNotFoundException("Recurso con id: " + id + " no encontrado.");
         }
     }
 }
