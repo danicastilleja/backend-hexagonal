@@ -1,5 +1,6 @@
-package com.icodeapp.proyectospring.application.autor.usecase;
+package com.icodeapp.proyectospring.application.autor.usecase.impl;
 
+import com.icodeapp.proyectospring.application.autor.usecase.SearchAutorUseCase;
 import com.icodeapp.proyectospring.domain.autor.model.Autor;
 import com.icodeapp.proyectospring.domain.autor.port.AutorRepositoryPort;
 import com.icodeapp.proyectospring.domain.exception.model.ResourceNotFoundException;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class SearchAutorUseCaseImpl implements SearchAutorUseCase{
+public class SearchAutorUseCaseImpl implements SearchAutorUseCase {
 
     private final AutorRepositoryPort autorRepositoryPort;
 

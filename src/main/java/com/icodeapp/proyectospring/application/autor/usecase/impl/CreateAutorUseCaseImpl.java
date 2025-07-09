@@ -1,5 +1,6 @@
-package com.icodeapp.proyectospring.application.autor.usecase;
+package com.icodeapp.proyectospring.application.autor.usecase.impl;
 
+import com.icodeapp.proyectospring.application.autor.usecase.CreateAutorUseCase;
 import com.icodeapp.proyectospring.domain.autor.model.Autor;
 import com.icodeapp.proyectospring.domain.autor.port.AutorRepositoryPort;
 import org.springframework.stereotype.Component;

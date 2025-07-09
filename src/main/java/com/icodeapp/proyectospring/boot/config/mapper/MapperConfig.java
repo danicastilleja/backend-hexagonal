@@ -1,4 +1,4 @@
-package com.icodeapp.proyectospring.infrastructure.configuration.mapper;
+package com.icodeapp.proyectospring.boot.config.mapper;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

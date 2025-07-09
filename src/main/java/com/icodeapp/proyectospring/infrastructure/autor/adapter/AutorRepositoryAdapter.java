@@ -3,74 +3,50 @@ package com.icodeapp.proyectospring.infrastructure.autor.adapter;
 import com.icodeapp.proyectospring.domain.autor.model.Autor;
 import com.icodeapp.proyectospring.domain.autor.port.AutorRepositoryPort;
 import com.icodeapp.proyectospring.infrastructure.autor.entity.AutorEntity;
+import com.icodeapp.proyectospring.infrastructure.autor.mapper.AutorEntityMapper;
 import com.icodeapp.proyectospring.infrastructure.autor.repository.AutorHardcodeRepository;
 import com.icodeapp.proyectospring.infrastructure.autor.repository.JpaAutorRepository;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class AutorRepositoryAdapter implements AutorRepositoryPort {
 
     private final JpaAutorRepository jpaAutorRepository;
+    private final AutorEntityMapper autorEntityMapper;
 
-    public AutorRepositoryAdapter(JpaAutorRepository jpaAutorRepository) {
+    public AutorRepositoryAdapter(JpaAutorRepository jpaAutorRepository, AutorEntityMapper autorEntityMapper) {
         this.jpaAutorRepository = jpaAutorRepository;
+        this.autorEntityMapper = autorEntityMapper;
     }
 
     @Override
     public List<Autor> getAutores() {
         List<AutorEntity> autoresEntities = this.jpaAutorRepository.findAll();
-        List<Autor> autoresDomain = new ArrayList<>();
-        autoresEntities.forEach(autorEntity -> {
-            Autor autorDomain = new Autor();
-            autorDomain.setId(autorEntity.getId());
-            autorDomain.setNombre(autorEntity.getNombre());
-            autorDomain.setApellido(autorEntity.getApellido());
-            autorDomain.setTelefono(autorEntity.getTelefono());
-            autoresDomain.add(autorDomain);
-        });
-        return autoresDomain;
+        return autoresEntities.stream().map(autorEntityMapper::toDomain).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Autor> getAutor(Long id) {
-        Optional<AutorEntity> autorEntityOptional = this.jpaAutorRepository.findById(id);
-        if(autorEntityOptional.isPresent()){
-            AutorEntity autorEntity = autorEntityOptional.get();
-            Autor autorDomain = new Autor();
-            autorDomain.setId(autorEntity.getId());
-            autorDomain.setNombre(autorEntity.getNombre());
-            autorDomain.setApellido(autorEntity.getApellido());
-            autorDomain.setTelefono(autorEntity.getTelefono());
-            return Optional.of(autorDomain);
-        }
-        return Optional.empty();
+        return jpaAutorRepository.findById(id)
+                .map(autorEntityMapper::toDomain);
     }
 
     @Override
     public Autor createAutor(Autor autor) {
-
-        AutorEntity autorEntity = new AutorEntity();
-        autorEntity.setNombre(autor.getNombre());
-        autorEntity.setApellido(autor.getApellido());
-        autorEntity.setTelefono(autor.getTelefono());
-        AutorEntity autorSaved = this.jpaAutorRepository.save(autorEntity);
-        autor.setId(autorSaved.getId());
-
-        return autor;
+        AutorEntity entity = autorEntityMapper.toEntity(autor);
+        AutorEntity autorSaved = this.jpaAutorRepository.save(entity);
+        return autorEntityMapper.toDomain(autorSaved);
     }
 
     @Override
     public Autor updateAutor(Autor autorUpdated) {
-        AutorEntity autorEntity = new AutorEntity();
-        autorEntity.setId(autorUpdated.getId());
-        autorEntity.setNombre(autorUpdated.getNombre());
-        autorEntity.setApellido(autorUpdated.getApellido());
-        autorEntity.setTelefono(autorUpdated.getTelefono());
-        this.jpaAutorRepository.save(autorEntity);
-        return autorUpdated;
+        AutorEntity entity = autorEntityMapper.toEntity(autorUpdated);
+        AutorEntity saved = this.jpaAutorRepository.save(entity);
+        return autorEntityMapper.toDomain(saved);
     }
 
     @Override
@@ -85,17 +61,6 @@ public class AutorRepositoryAdapter implements AutorRepositoryPort {
 
     @Override
     public Optional<Autor> searchByNameAndSurname(String name, String surname) {
-        Optional<AutorEntity> autorEntityOptional = this.jpaAutorRepository.searchByNameAndSurname(name, surname);
-        if(autorEntityOptional.isPresent()){
-            AutorEntity autorEntity = autorEntityOptional.get();
-            Autor autorDomain = new Autor();
-            autorDomain.setId(autorEntity.getId());
-            autorDomain.setNombre(autorEntity.getNombre());
-            autorDomain.setApellido(autorEntity.getApellido());
-            autorDomain.setTelefono(autorEntity.getTelefono());
-            return Optional.of(autorDomain);
-        }
-
-        return Optional.empty();
+        return this.jpaAutorRepository.searchByNameAndSurname(name, surname).map(autorEntityMapper::toDomain);
     }
 }
